@@ -11,27 +11,30 @@
         -->
         <tarball name="{{ container_name }}.tar.gz" compression="gzip" encryption="..." gateway="ftp">
             <source engine="docker-save" target="./{{ container_name }}.tar"/>
+            <get-data from="docker-save" put-to="./{{ container_name }}.tar"/>
+
             <source engine="docker-history" target="./{{ container_name }}.history.txt"/>
-            <foreach entity="local-fs /* container-fs */" iterator="#имя итератора по директориям + какие-то аргументы для него#"
-                set-env="project_name:iteration[name]"
-                set-env="project_root:iteration[root]"
+            <foreach entity="local-fs" iterator="#имя итератора по директориям + какие-то аргументы для него#"
             >
+                <set-env name="project_name" value="iteration[name]"/>
+                <set-env name="project_root" value="iteration[root]"/>
+
                 <!-- здесь эл-т итерации соответствует папке какого-то проекта-->
                 <source engine="local-fs" profile="bx-site" target="./{{ project_name }}"/>
 
                 <!-- parse-php-file ниже отработает только для тех файлов, к-ые существуют -->
-                <parse-php-file source="{{ project_root }}/bitrix/php_interface/dbconn.php"
-                    set-env="mysql[0][host]:$DBHost"
-                    set-env="mysql[0][user]:$DBLogin"
-                    set-env="mysql[0][pass]:$DBPassword"
-                    set-env="mysql[0][dbname]:$DBName"
-                />
-                <foreach entity="php-array" file="{{ project_root }}/bitrix/.settings.php" source="#return#[connections]"
-                    set-env="mysql[][host]:{{ host }}"
-                    set-env="mysql[][user]:{{ login }}"
-                    set-env="mysql[][pass]:{{ password }}"
-                    set-env="mysql[][dbname]:{{ database }}"
-                />
+                <parse-php-file source="{{ project_root }}/bitrix/php_interface/dbconn.php">
+                    <set-env name="mysql[0][host]" value="$DBHost"/>
+                    <set-env name="mysql[0][user]" value="$DBLogin"/>
+                    <set-env name="mysql[0][pass]" value="$DBPassword"/>
+                    <set-env name="mysql[0][dbname]" value="$DBName"/>
+                </parse-php-file>
+                <foreach entity="php-array" file="{{ project_root }}/bitrix/.settings.php" source="#return#[connections][value]">
+                    <set-env name="mysql[][host]" value="{{ host }}"/>
+                    <set-env name="mysql[][user]" value="{{ login }}"/>
+                    <set-env name="mysql[][pass]" value="{{ password }}"/>
+                    <set-env name="mysql[][dbname]" value="{{ database }}"/>
+                </foreach>
                 <foreach entity="env-variable" source="mysql">
                     <source engine="mysqldump" host="{{ host }}" user="{{ user }}" pass="{{ pass }}"  dbname="{{ dbname }}" profile="bx-basic-tables" arg="..." target="./bitrix/backup/db.{{ partition }}.sql"/>
                 </foreach>
