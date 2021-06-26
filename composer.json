@@ -1,0 +1,24 @@
+{
+    "name": "novascript/iostreamer",
+    "license": "GPL-3.0-only",
+    "description": "Позволяет создавать потоковые бэкапы (без сохранения промежуточной копии на локальный диск); архивировать и удалять лог-файлы",
+    "authors": [
+        {
+            "name": "Gennady Gludin",
+            "email": "retrill@yandex.ru",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "ext-mbstring": "*",
+        "splitbrain/php-archive": "@stable"
+    },
+    "require-dev": {},
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Novascript\\IoStreamer\\": "src/"
+        }
+    }
+}
