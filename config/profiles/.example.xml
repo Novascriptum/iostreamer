@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+    <foreach entity="docker-container"><!-- также тут можно передать имя итератора -->
+        <!--
+            Тэг tarball ниже, на самом деле, при своей инициализации не открывает tar-процесс,
+            а открывает только последующую после него цепочку (сжатие, шифрование и отправки).
+            И далее получает от дочерних классов обратные вызовы на добавление чего-либо (бинарных данных, которые они хотят отдать; информацию о том, какую папку локальной ситсемы добавить и пр.). Для этого чего-либо он открывает tar-процесс, который передаёт свой stdout в stdin порождённой ранее цепочки - и не закрывает этот tar (не записывает закрывающие заголовки).
+            Таким образом он будет дописывать туда в единый архив все данные.
+            Минус только в том, что tar будет работать только в php-режиме (и не сможет делегировать работу консольному tar, который быстрее)
+            Вложенные tarball, теоретически, поддерживаются. Минус только в том, что вложенный tar будет формироваться потоково с неизвестным заранее размером (т.е. в виде N-штучных архивов). И в этом случае нужно продумать потребление памяти обоими процессами, чтобы оно не суммировалось (передал 512 Мб от дочернего процесса в родителя - получил 1 Гб)
+        -->
+        <tarball name="{{ container_name }}.tar.gz" compression="gzip" encryption="..." gateway="ftp">
+            <source engine="docker-save" target="./{{ container_name }}.tar"/>
+            <source engine="docker-history" target="./{{ container_name }}.history.txt"/>
+            <foreach entity="local-fs /* container-fs */" iterator="#имя итератора по директориям + какие-то аргументы для него#"
+                set-env="project_name:iteration[name]"
+                set-env="project_root:iteration[root]"
+            >
+                <!-- здесь эл-т итерации соответствует папке какого-то проекта-->
+                <source engine="local-fs" profile="bx-site" target="./{{ project_name }}"/>
+
+                <!-- parse-php-file ниже отработает только для тех файлов, к-ые существуют -->
+                <parse-php-file source="{{ project_root }}/bitrix/php_interface/dbconn.php"
+                    set-env="mysql[0][host]:$DBHost"
+                    set-env="mysql[0][user]:$DBLogin"
+                    set-env="mysql[0][pass]:$DBPassword"
+                    set-env="mysql[0][dbname]:$DBName"
+                />
+                <foreach entity="php-array" file="{{ project_root }}/bitrix/.settings.php" source="#return#[connections]"
+                    set-env="mysql[][host]:{{ host }}"
+                    set-env="mysql[][user]:{{ login }}"
+                    set-env="mysql[][pass]:{{ password }}"
+                    set-env="mysql[][dbname]:{{ database }}"
+                />
+                <foreach entity="env-variable" source="mysql">
+                    <source engine="mysqldump" host="{{ host }}" user="{{ user }}" pass="{{ pass }}"  dbname="{{ dbname }}" profile="bx-basic-tables" arg="..." target="./bitrix/backup/db.{{ partition }}.sql"/>
+                </foreach>
+            </foreach>
+            <!-- <container-io/> -->
+
+        </tarball>
+    </foreach>
+</profile>
