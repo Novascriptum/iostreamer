@@ -6,10 +6,15 @@ namespace Novascript\IoStreamer;
 
 include \dirname(__DIR__).'/vendor/autoload.php';
 
-// \Novascript\IoStreamer\Backup::hello();
 $opts = Utils::getOptions([
     'p' => 'profile:*',
     't' => ['test', false],
 ]);
 
-var_dump($opts);
+if (isset($opts['profile'])) {
+    foreach ($opts['profile'] as $profileName) {
+        (new Profile($profileName))->execute();
+    }
+} else {
+    exit('Nothing to do (profile not defined)'."\n");
+}
