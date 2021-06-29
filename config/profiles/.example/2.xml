@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile set-env:myvar="myvalue">
+    <file generator="tar" name="{{ container_name }}.tar.gz.aes" compression:profile="gzip" encryption:profile="main" gateway:profile="ftp">
+        <get-data from:localfs="/home/bitrix/win/iostreamer/.todo.log" put-to="./"/>
+    </file>
+</profile>
