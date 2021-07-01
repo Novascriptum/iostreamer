@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <profile set-env:myvar="myvalue">
-    <file generator="tar" name="{{ container_name }}.tar.gz.aes" compression:profile="gzip" encryption:profile="main" gateway:profile="ftp">
-        <get-data from:localfs="/home/bitrix/win/iostreamer/.todo.log" put-to="./"/>
-    </file>
+    <wrapper archive-engine="tar" output-path="{{ container_name }}.tar.gz.aes" compression:profile="gzip" encryption:profile="main" output:profile="ftp">
+        <set source:localfs="/home/bitrix/win/iostreamer/.todo.log" output:path="./"/>
+
+        <!-- wrapper-tar ниже имеет пустой output, поэтому должен быть передан в родительский
+            tar-wrapper выше через getStreamToPutIn с указанием пустого пути = должен быть записан
+            прямо в исходящий gzip процесс - т.е. дописан в конец предыдущих tar-данных (по сути,
+            tar-конкатенация)
+        -->
+        <wrapper archive-engine="tar">
+            <set source:localfs="/home/bitrix/win/iostreamer/.todo2.log" output:path="./"/>
+        </wrapper>
+    </wrapper>
 </profile>

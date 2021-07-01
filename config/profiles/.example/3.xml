@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile set-env:profileStart="{{ datetime() }}">
+    <!--
+        if wrapper has name, it will open output subprocess to that file
+        Otherwise all child callbacks will be wrapped into individual outpur subprocess
+    -->
+    <wrapper compression:profile="gzip" encryption:profile="main" output:profile="ftp">
+        <set source:mysqldump="...opts" output:path="./dbname.sql.gz"/>
+        <set source:mysqldump="...opts" output:path="./dbname2.sql.gz"/>
+        <wrapper engine="tar" output:path="./files.tar.gz">
+            <set source:localfs="/home/bitrix/win/iostreamer/.todo.log" output:path="./"/>
+            <set source:localfs="/home/bitrix/win/iostreamer/.todo2.log" output:path="./"/>
+        </wrapper>
+    </wrapper>
+</profile>
