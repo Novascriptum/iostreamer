@@ -6,6 +6,7 @@ use Novascript\IoStreamer\Node as BasicNode;
 
 class Wrapper extends BasicNode
 {
+    protected $outputStream;
     /**
      * tar | zip etc.
      */
@@ -26,9 +27,24 @@ class Wrapper extends BasicNode
 
     public function addLocalFsItems(array $items, int $offset = 0)
     {
+        foreach($items as $path){
+            $content = \file_get_contents($path);
+            \fwrite($this->outputStream, $content);
+        }
     }
 
     protected function initOutputStream()
     {
+        $this->outputStream = \STDOUT;
+    }
+
+    protected function beforeChildExecute(BasicNode $child): void
+    {
+        $child->setWrapper($this);
+    }
+
+    protected function custom(): void
+    {
+        $this->initOutputStream();
     }
 }

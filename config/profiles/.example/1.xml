@@ -10,12 +10,12 @@
             Вложенные tarball, теоретически, поддерживаются. Минус только в том, что вложенный tar будет формироваться потоково с неизвестным заранее размером (т.е. в виде N-штучных архивов). И в этом случае нужно продумать потребление памяти обоими процессами, чтобы оно не суммировалось (передал 512 Мб от дочернего процесса в родителя - получил 1 Гб)
         -->
         <tarball name="{{ container_name }}.tar.gz" compression="gzip" encryption="..." gateway="ftp">
-            <source engine="docker-save" target="./{{ container_name }}.tar"/>
-            <get-data from="docker-save" put-to="./{{ container_name }}.tar"/>
-
-            <source engine="docker-history" target="./{{ container_name }}.history.txt"/>
-            <foreach entity="local-fs" iterator="#имя итератора по директориям + какие-то аргументы для него#"
-            >
+            <foreach entity:docker-container="*">
+                <set source:docker-save="{{ container.id }}" output:path="./{{ container_name }}.tar"/>
+                <set source:docker-history="{{ container.id }}" output:path="./{{ container_name }}.history.txt"/>
+            </foreach>
+            
+            <foreach entity="local-fs" iterator="#имя итератора по директориям + какие-то аргументы для него#">
                 <set-env name="project_name" value="iteration[name]"/>
                 <set-env name="project_root" value="iteration[root]"/>
 

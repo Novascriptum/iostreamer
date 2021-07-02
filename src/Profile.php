@@ -21,7 +21,7 @@ class Profile
         if (!$this->checkFile($profilePath)) {
             return false;
         }
-        $rootXmlNode = \simplexml_load_file($profilePath);
+        $rootXmlNode = \simplexml_load_file($profilePath, null, \LIBXML_NOERROR);
         NodeFactory::get($rootXmlNode->getName(), $this->xmlToArray($rootXmlNode))->execute();
 
         return true;

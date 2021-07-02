@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <wrapper output="stdout">
-    <set source:mysqldump="...opts"/>
+    <set source:localfs="/home/bitrix/win/iostreamer/tags.txt" output:path="./"/>
 </wrapper>

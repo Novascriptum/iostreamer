@@ -1,0 +1,12 @@
+<foreach>
+    entity:(local-fs|docker-container|database|php-array|env-variable)
+    profile:(local-fs|docker-container|docker-history|database|php-array|env-variable)
+    [iterator]
+        Если итератор не задан, то перебираются вообще все возможные сущности (если это допустимо). Например, это могут быть докер-контейнеры или базы данных, к которым есть доступ
+
+<foreach entity:local-fs=""
+
+<set>
+    source:(localfs|docker-save|mysqldump)
+    [output:path]
+        Если output вообще не задан, то подразумевается, что <set> должен отправлять данные без указания своего местоположения во wrapper'е. Это может иметь смысл, например, если wrapper отправляет данные напрямую в STDOUT как участник какого-то конвейера.
