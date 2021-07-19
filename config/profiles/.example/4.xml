@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wrapper output="stdout">
-    <set source:localfs="/home/bitrix/win/iostreamer/tags.txt" output:path="./"/>
-</wrapper>
+<build output="stdout">
+    <set source="localfs" include="/home/bitrix/win/iostreamer/tags.txt" output:path="./"/>
+    <set source="localfs" output:path="./">
+        <include="/path/to/folder/1/*"/>
+        <include="/path/to/folder/2/*"/>
+        <exclude="/path/to/folder/2/*/sub"/>
+        <include="/path/to/folder/2/*/sub/important"/>
+    </set>
+
+    <set localfs:source="/home/bitrix/win/iostreamer/tags.txt" output:path="./"/>
+    <set mysqldump:profile="db*" output:path="./bitrix/backup/db{{ partition }}.sql"/>
+    <set mysqldump:database="site*" output:path="./bitrix/backup/db{{ partition }}.sql" exclude:profile="bxenv-standard">
+        <exclude database="informa*"/>
+        <exclude table="_*"/>
+        <database name="my_super_db">
+            <exclude table="_*"/>
+        </database>
+    </set>
+    <foreach target="mysql-database" include:1="db1_*" include:2="db2_*">
+        <include="db3_*"/>
+        <include="db4_*"/>
+        <exclude="db2_test_*"/>
+        <do>
+            <set mysqldump:database="{{ iteration_name }}" output:path="./{{ iteration_name }}/{{ partition }}.sql" exclude:profile="bxenv-standard">
+        </do>
+    </set>
+    </foreach>
+</build>
